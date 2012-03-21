@@ -3,3 +3,4 @@
 /state.sqlite
 /twistd.log
 /twistd.pid
+*.pyc
