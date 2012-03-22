@@ -9,11 +9,12 @@ class EmacsProject(object):
     def dispatch(self):
         config = self._config
 
-        config['change_source'].extend(self.getPollers())
-        config['schedulers'].extend(self.getSchedulers())
-        config['builders'].extend(self.getBuilders())
-
         config['slaves'].extend(self._slaves)
+        config['builders'].extend(self.getBuilders())
+        config['schedulers'].extend(self.getSchedulers())
+
+        config['change_source'].extend(self.getPollers())
+
 
     def getPollers(self):
         return []

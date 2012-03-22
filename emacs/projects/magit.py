@@ -12,6 +12,7 @@ from buildbot.config import BuilderConfig
 class MagitProject(EmacsProject):
 
     _project_name = 'magit'
+
     MAGIT_GIT_REPO = 'git://github.com/magit/magit.git'
     MAGIT_GIT_BRANCHES = ['master']
 
