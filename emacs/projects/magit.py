@@ -1,40 +1,44 @@
-from ._base import EmacsProject
+from ._base import EmacsGitProject
 from ..changes import EmacsGitPoller
 
 from buildbot.schedulers.basic import SingleBranchScheduler
+from buildbot.schedulers.forcesched import ForceScheduler
 from buildbot.changes import filter
 
 from buildbot.process.factory import BuildFactory
 from buildbot.steps.source import Git
 from ..steps import EmacsCompile
-from buildbot.config import BuilderConfig
 
-class MagitProject(EmacsProject):
+class MagitProject(EmacsGitProject):
 
     _project_name = 'magit'
+    _project_combinations = {'os': ['lx-oneiric', 'osx-lion'],
+                             'arch': ['64']}
 
-    MAGIT_GIT_REPO = 'git://github.com/magit/magit.git'
-    MAGIT_GIT_BRANCHES = ['master']
+    _project_git_repo = 'git://github.com/magit/magit.git'
+    _project_git_branches = ['maint', 'master', 'next']
 
-    def getPollers(self):
-        return [EmacsGitPoller(self.MAGIT_GIT_REPO, branch, 300, self)
-                for branch in self.MAGIT_GIT_BRANCHES]
+    def getBranchPoller(self, branch):
+        return EmacsGitPoller(self._project_git_repo, branch, 300, self)
 
-    def getSchedulers(self):
-        return [SingleBranchScheduler(
-                name="master",
-                change_filter=filter.ChangeFilter(branch='master'),
-                treeStableTimer=10,
-                builderNames=["master:linux-oneiric"])]
+    def getBranchSchedulers(self, branch):
+        filt = filter.ChangeFilter(branch=branch)
+        builders = [b.name for b in self._builders
+                  if b.branch==branch]
+        name = "%s:%s" % (self._project_name, branch)
+        return [SingleBranchScheduler(name=name,
+                                      change_filter=filt,
+                                      treeStableTimer=10,
+                                      builderNames=builders),
+                # ForceScheduler(name=name + "--force",
+                #                builderNames=builders)
+                ]
 
-    def getBuilders(self):
-        build_master_factory = BuildFactory()
-        build_master_factory.addStep(
-            Git(repourl=self.MAGIT_GIT_REPO, mode='copy',
-                branch="master"))
-        build_master_factory.addStep(
+    def getBranchFactory(self, branch):
+        factory = BuildFactory()
+        factory.addStep(
+            Git(repourl=self._project_git_repo, mode='copy',
+                branch=branch))
+        factory.addStep(
             EmacsCompile(command=["make", "clean", "all"]))
-
-        return [BuilderConfig(name="master:linux-oneiric",
-                              slavenames=["magit:master:linux-oneiric"],
-                              factory=build_master_factory)]
+        return factory

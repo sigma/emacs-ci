@@ -12,6 +12,7 @@ class EmacsGitPoller(GitPoller):
                                "%s-%s" % (project._project_name, branch))
         spec = '+refs/heads/%s:refs/remotes/origin/%s' % (branch, branch)
         GitPoller.__init__(self, repo,
+                           category=project._project_name,
                            workdir=workdir,
                            fetch_refspec=spec,
                            branch=branch, pollinterval=interval)

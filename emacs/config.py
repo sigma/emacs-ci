@@ -1,3 +1,5 @@
+from buildbot.config import BuilderConfig
+
 class EmacsBuildConfig(dict):
 
     def __init__(self, projectName="Buildbot", projectURL="", slavePortnum=9901,
@@ -14,3 +16,10 @@ class EmacsBuildConfig(dict):
         self['projectURL'] = projectURL
         self['buildbotURL'] = buildbotURL
         self['db_url'] = db_url
+
+class EmacsBuilderConfig(BuilderConfig):
+
+    def __init__(self, name, branch, slavenames=None, factory=None, category=None):
+        BuilderConfig.__init__(self, name=name, slavenames=slavenames,
+                               factory=factory, category=category)
+        self.branch = branch
