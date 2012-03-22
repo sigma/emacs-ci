@@ -1,5 +1,7 @@
 class EmacsProject(object):
 
+    _project_name = ""
+
     def __init__(self, config, slaves):
         self._config = config
         self._slaves = slaves

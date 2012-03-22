@@ -11,12 +11,13 @@ from buildbot.config import BuilderConfig
 
 class MagitProject(EmacsProject):
 
+    _project_name = 'magit'
+    MAGIT_GIT_REPO = 'git://github.com/magit/magit.git'
+    MAGIT_GIT_BRANCHES = ['master']
+
     def getPollers(self):
-        return [EmacsGitPoller(
-                'git://github.com/magit/magit.git',
-                workdir='magit-master',
-                fetch_refspec='+refs/heads/master:refs/remotes/origin/master',
-                branch='master', pollinterval=300)]
+        return [EmacsGitPoller(self.MAGIT_GIT_REPO, branch, 300, self)
+                for branch in self.MAGIT_GIT_BRANCHES]
 
     def getSchedulers(self):
         return [SingleBranchScheduler(
@@ -28,7 +29,7 @@ class MagitProject(EmacsProject):
     def getBuilders(self):
         build_master_factory = BuildFactory()
         build_master_factory.addStep(
-            Git(repourl='git://github.com/magit/magit.git', mode='copy',
+            Git(repourl=self.MAGIT_GIT_REPO, mode='copy',
                 branch="master"))
         build_master_factory.addStep(
             EmacsCompile(command=["make", "clean", "all"]))
