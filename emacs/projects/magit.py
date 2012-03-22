@@ -13,7 +13,7 @@ class MagitProject(EmacsGitProject):
 
     _project_name = 'magit'
     _project_combinations = {'os': ['lx-oneiric', 'osx-lion'],
-                             'arch': ['64']}
+                             'arch': ['x64']}
 
     _project_git_repo = 'git://github.com/magit/magit.git'
     _project_git_branches = ['maint', 'master', 'next']
@@ -30,9 +30,8 @@ class MagitProject(EmacsGitProject):
                                       change_filter=filt,
                                       treeStableTimer=10,
                                       builderNames=builders),
-                # ForceScheduler(name=name + "--force",
-                #                builderNames=builders)
-                ]
+                ForceScheduler(name=name + "--force",
+                               builderNames=builders)]
 
     def getBranchFactory(self, branch):
         factory = BuildFactory()

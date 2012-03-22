@@ -48,10 +48,10 @@ class EmacsProject(object):
             for slave in self._slaves:
                 fits = True
                 for key, val in zip(keys, combo):
-                    if not slave.properties.hasProperty(key):
+                    if not slave.properties['features'].has_key(key):
                         fits = False
                         break
-                    if slave.properties.getProperty(key) != val:
+                    if slave.properties['features'][key] != val:
                         fits = False
                         break
                 if fits:
