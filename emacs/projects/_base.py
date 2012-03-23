@@ -17,23 +17,32 @@ class EmacsProject(object):
         config = self._config
 
         config['slaves'].extend(self._slaves)
-
-        self._builders = self.getBuilders()
-        config['builders'].extend(self._builders)
-
-        self._schedulers = self.getSchedulers()
-        config['schedulers'].extend(self._schedulers)
-
-        self._pollers = self.getPollers()
-        config['change_source'].extend(self._pollers)
+        config['builders'].extend(self.getBuilders())
+        config['schedulers'].extend(self.getSchedulers())
+        config['change_source'].extend(self.getPollers())
 
     def getPollers(self):
+        if not self._pollers:
+            self._pollers = self.computePollers()
+        return self._pollers
+
+    def computePollers(self):
         return []
 
     def getSchedulers(self):
+        if not self._schedulers:
+            self._schedulers = self.computeSchedulers()
+        return self._schedulers
+
+    def computeSchedulers(self):
         return []
 
     def getBuilders(self):
+        if not self._builders:
+            self._builders = self.computeBuilders()
+        return self._builders
+
+    def computeBuilders(self):
         return []
 
     def getAssignments(self):
@@ -68,15 +77,15 @@ class EmacsGitProject(EmacsProject):
         return [self.getBranchPoller(branch)
                 for branch in self._project_git_branches]
 
-    def getSchedulers(self):
+    def computeSchedulers(self):
         schedulers = []
 
         for branch in self._project_git_branches:
-            schedulers.extend(self.getBranchSchedulers(branch))
+            schedulers.append(self.getBranchScheduler(branch))
 
         return schedulers
 
-    def getBuilders(self):
+    def computeBuilders(self):
         builders = []
 
         assignments = self.getAssignments()

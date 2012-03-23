@@ -2,7 +2,6 @@ from ._base import EmacsGitProject
 from ..changes import EmacsGitPoller
 
 from buildbot.schedulers.basic import SingleBranchScheduler
-from buildbot.schedulers.forcesched import ForceScheduler
 from buildbot.changes import filter
 
 from buildbot.process.factory import BuildFactory
@@ -21,17 +20,15 @@ class MagitProject(EmacsGitProject):
     def getBranchPoller(self, branch):
         return EmacsGitPoller(self._project_git_repo, branch, 300, self)
 
-    def getBranchSchedulers(self, branch):
+    def getBranchScheduler(self, branch):
         filt = filter.ChangeFilter(branch=branch)
-        builders = [b.name for b in self._builders
-                  if b.branch==branch]
+        builders = [b.name for b in self.getBuilders()
+                    if b.branch==branch]
         name = "%s:%s" % (self._project_name, branch)
-        return [SingleBranchScheduler(name=name,
-                                      change_filter=filt,
-                                      treeStableTimer=10,
-                                      builderNames=builders),
-                ForceScheduler(name=name + "--force",
-                               builderNames=builders)]
+        return SingleBranchScheduler(name=name,
+                                     change_filter=filt,
+                                     treeStableTimer=10,
+                                     builderNames=builders)
 
     def getBranchFactory(self, branch):
         factory = BuildFactory()
