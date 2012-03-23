@@ -17,6 +17,8 @@ class EmacsBuildConfig(dict):
         self['buildbotURL'] = buildbotURL
         self['db_url'] = db_url
 
+        self['mergeRequests'] = True
+
 class EmacsBuilderConfig(BuilderConfig):
 
     def __init__(self, name, branch, slavenames=None, factory=None, category=None):
