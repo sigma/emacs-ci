@@ -1,5 +1,9 @@
 from itertools import product
 from ..config import EmacsBuilderConfig
+from ..changes import EmacsGitPoller
+
+from buildbot.changes import filter
+from buildbot.schedulers.basic import SingleBranchScheduler
 
 class EmacsProject(object):
 
@@ -72,10 +76,16 @@ class EmacsGitProject(EmacsProject):
 
     _project_git_repo = ""
     _project_git_branches = ""
+    _project_poll_default = 300
+    _project_stable_default = 10
 
     def getPollers(self):
         return [self.getBranchPoller(branch)
                 for branch in self._project_git_branches]
+
+    def getBranchPoller(self, branch):
+        return EmacsGitPoller(self._project_git_repo, branch,
+                              self._project_poll_default, self)
 
     def computeSchedulers(self):
         schedulers = []
@@ -84,6 +94,17 @@ class EmacsGitProject(EmacsProject):
             schedulers.append(self.getBranchScheduler(branch))
 
         return schedulers
+
+    def getBranchScheduler(self, branch):
+        filt = filter.ChangeFilter(branch=branch)
+        builders = [b.name for b in self.getBuilders()
+                    if b.branch==branch]
+        name = "%s:%s" % (self._project_name, branch)
+        return SingleBranchScheduler(
+            name=name,
+            change_filter=filt,
+            treeStableTimer=self._project_stable_default,
+            builderNames=builders)
 
     def computeBuilders(self):
         builders = []
@@ -105,3 +126,12 @@ class EmacsGitProject(EmacsProject):
                                                    category=self._project_name))
 
         return builders
+
+    def getBranchFactory(self, branch):
+        factory = BuildFactory()
+        factory.addStep(
+            Git(repourl=self._project_git_repo, mode='copy',
+                branch=branch))
+        factory.addStep(
+            EmacsCompile(command=["make", "clean", "all"]))
+        return factory
