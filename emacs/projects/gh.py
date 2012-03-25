@@ -19,15 +19,15 @@ class GhProject(EmacsGitProject):
     _project_git_repo = 'git://github.com/sigma/gh.el.git'
     _project_git_branches = ['master']
 
-    _deps = [('pcache', 'git://github.com/sigma/pcache', 'refs/tags/v0.2.2'),
-             ('logito', 'git://github.com/sigma/logito', 'refs/tags/v0.1'),
-             ('mocker', 'git://github.com/sigma/mocker.el', 'refs/tags/v0.2')]
+    _deps = [('pcache', 'git://github.com/sigma/pcache', 'master'),
+             ('logito', 'git://github.com/sigma/logito', 'master'),
+             ('mocker', 'git://github.com/sigma/mocker.el', 'master')]
 
     def getFactory(self, branch, combo):
         factory = BuildFactory()
         for p, r, t in self._deps:
             factory.addStep(
-                Git(repourl=r, mode='copy', branch=t,
+                Git(repourl=r, branch=t,
                     workdir=p, logEnviron=False,
                     description=['updating', p],
                     descriptionDone=['update', p]))
