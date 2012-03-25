@@ -109,7 +109,7 @@ class EmacsGitProject(EmacsProject):
     def getBranchScheduler(self, branch):
         filt = filter.ChangeFilter(project=self._project_name,
                                    branch=branch,
-                                   category=project._project_name)
+                                   category=self._project_name)
         builders = [b.name for b in self.getBuilders()
                     if b.branch==branch]
         name = "%s:%s" % (self._project_name, branch)
