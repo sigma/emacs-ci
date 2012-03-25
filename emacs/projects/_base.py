@@ -1,9 +1,12 @@
 from itertools import product
 from ..config import EmacsBuilderConfig
 from ..changes import EmacsGitPoller
+from ..steps import EmacsCompile
 
 from buildbot.changes import filter
+from buildbot.process.factory import BuildFactory
 from buildbot.schedulers.basic import SingleBranchScheduler
+from buildbot.steps.source import Git
 
 class EmacsProject(object):
 
@@ -49,26 +52,34 @@ class EmacsProject(object):
     def computeBuilders(self):
         return []
 
+    def validateFeature(self, proposed, expected):
+        if callable(expected):
+            return expected(proposed)
+        return expected == proposed
+
     def getAssignments(self):
         keys = self._project_combinations.keys()
         values = self._project_combinations.values()
 
-        assignments = {}
+        assignments = []
 
         for combo in product(*values):
-            combo_tag = ":".join(combo)
-            assignments[combo_tag] = []
+            combo_tag = dict(zip(keys, combo))
+            slaves = []
             for slave in self._slaves:
                 fits = True
                 for key, val in zip(keys, combo):
-                    if not slave.properties['features'].has_key(key):
+                    if not slave.properties.has_key("slave/features/" + key):
                         fits = False
                         break
-                    if slave.properties['features'][key] != val:
+                    if not self.validateFeature(
+                        slave.properties['slave/features/' + key], val):
                         fits = False
                         break
                 if fits:
-                    assignments[combo_tag].append(slave.slavename)
+                    slaves.append(slave.slavename)
+            if slaves:
+                assignments.append((combo_tag, slaves))
 
         return assignments
 
@@ -112,13 +123,13 @@ class EmacsGitProject(EmacsProject):
         assignments = self.getAssignments()
 
         for branch in self._project_git_branches:
-            factory = self.getBranchFactory(branch)
-
-            for combo, slaves in assignments.items():
+            for combo, slaves in assignments:
+                factory = self.getFactory(branch, combo)
                 if not slaves or len(slaves) == 0:
                     continue
                 name = "%s:%s:%s" % (self._project_name,
-                                     branch, combo)
+                                     branch,
+                                     ":".join([str(v) for v in combo.values()]))
                 builders.append(EmacsBuilderConfig(name=name,
                                                    branch=branch,
                                                    slavenames=slaves,
@@ -127,7 +138,7 @@ class EmacsGitProject(EmacsProject):
 
         return builders
 
-    def getBranchFactory(self, branch):
+    def getFactory(self, branch, combo):
         factory = BuildFactory()
         factory.addStep(
             Git(repourl=self._project_git_repo, mode='copy',

@@ -18,8 +18,13 @@ def getSlaves():
                 continue
 
             properties = {}
-            if d.has_key('features'):
-                properties['features'] = d['features']
+            slave_features = d.get('features', {})
+            for key, val in slave_features.items():
+                properties["slave/features/%s" % key] = val
+
+            slave_binaries = d.get('binaries', {})
+            for key, val in slave_binaries.items():
+                properties["slave/binaries/%s" % key] = val
 
             slaves.append(BuildSlave(s, d['password'],
                                      properties=properties))
