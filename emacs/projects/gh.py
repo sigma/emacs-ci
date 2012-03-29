@@ -29,8 +29,8 @@ class GhProject(EmacsGitProject):
             factory.addStep(
                 Git(repourl=r, branch=t,
                     workdir=p, logEnviron=False,
-                    description=['updating', p],
-                    descriptionDone=['update', p]))
+                    description=['updating %s' % (p)],
+                    descriptionDone=['update %s' % (p)]))
         _eflags = '-L ../pcache -L ../logito -L ../mocker'
         _emacs_prop = 'EMACS=%(slave/binaries/emacs:-emacs)s'
         factory.addStep(
