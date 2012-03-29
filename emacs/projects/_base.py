@@ -64,18 +64,19 @@ class EmacsProject(object):
         assignments = []
 
         for combo in product(*values):
-            combo_tag = dict(zip(keys, combo))
+            combo_tag = {}
             slaves = []
             for slave in self._slaves:
                 fits = True
-                for key, val in zip(keys, combo):
+                for key, expected in zip(keys, combo):
                     if not slave.properties.has_key("slave/features/" + key):
                         fits = False
                         break
-                    if not self.validateFeature(
-                        slave.properties['slave/features/' + key], val):
+                    proposed = slave.properties['slave/features/' + key]
+                    if not self.validateFeature(proposed, expected):
                         fits = False
                         break
+                    combo_tag[key] = proposed
                 if fits:
                     slaves.append(slave.slavename)
             if slaves:
