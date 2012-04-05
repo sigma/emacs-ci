@@ -7,6 +7,7 @@ from buildbot.process.properties import WithProperties
 
 from ..steps import EmacsCompile, EmacsTest
 from ..versions import EmacsVersionIdentifier
+from ..source import DetachedGit
 
 class GhProject(EmacsGitProject):
 
@@ -27,10 +28,10 @@ class GhProject(EmacsGitProject):
         factory = BuildFactory()
         for p, r, t in self._deps:
             factory.addStep(
-                Git(repourl=r, branch=t,
-                    workdir=p, logEnviron=False,
-                    description=['updating %s' % (p)],
-                    descriptionDone=['update %s' % (p)]))
+                DetachedGit(repourl=r, branch=t,
+                            workdir=p, logEnviron=False,
+                            description=['updating %s' % (p)],
+                            descriptionDone=['update %s' % (p)]))
         _eflags = '-L ../pcache -L ../logito -L ../mocker'
         _emacs_prop = 'EMACS=%(slave/binaries/emacs:-emacs)s'
         factory.addStep(

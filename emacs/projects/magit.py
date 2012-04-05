@@ -7,6 +7,7 @@ from buildbot.process.properties import WithProperties
 from ..steps import EmacsCompile, EmacsTest
 from ..versions import EmacsVersionIdentifier
 from ..utils import memoized
+from ..source import DetachedGit
 
 class MagitProject(EmacsGitProject):
 
@@ -45,10 +46,10 @@ class MagitProject(EmacsGitProject):
 
         for p, r, t in self._deps:
             factory.addStep(
-                Git(repourl=r, branch=t,
-                    workdir=p, logEnviron=False,
-                    description=['updating %s' % (p)],
-                    descriptionDone=['update %s' % (p)]))
+                DetachedGit(repourl=r, branch=t,
+                            workdir=p, logEnviron=False,
+                            description=['updating %s' % (p)],
+                            descriptionDone=['update %s' % (p)]))
         factory.addStep(
             Git(repourl=self._project_git_repo, mode='copy',
                 branch=branch, logEnviron=False))
