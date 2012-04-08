@@ -76,7 +76,7 @@ class EmacsProject(object):
                     if not self.validateFeature(proposed, expected):
                         fits = False
                         break
-                    combo_tag[key] = proposed
+                    combo_tag[key] = expected
                 if fits:
                     slaves.append(slave.slavename)
             if slaves:

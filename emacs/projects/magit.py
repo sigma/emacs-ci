@@ -11,13 +11,13 @@ from ..source import DetachedGit
 
 class MagitProject(EmacsGitProject):
 
+    _emacs24 = EmacsVersionIdentifier(kind="gnu", version="24")
+    _emacs23 = EmacsVersionIdentifier(kind="gnu", version="23")
+
     _project_name = 'magit'
     _project_combinations = {'os': ['lx-oneiric', 'osx-lion'],
                              'arch': ['x64'],
-                             'emacs': [EmacsVersionIdentifier(kind="gnu",
-                                                              version="24"),
-                                       EmacsVersionIdentifier(kind="gnu",
-                                                              version="23")]}
+                             'emacs': [_emacs24, _emacs23]}
 
     _project_git_repo = 'git://github.com/magit/magit.git'
     _project_git_branches = ['maint', 'master', 'next']
@@ -67,7 +67,7 @@ class MagitProject(EmacsGitProject):
         return factory
 
     def getFactory(self, branch, combo):
-        if not EmacsVersionIdentifier(kind="gnu", version="24")(combo['emacs']):
+        if not self._emacs24 == combo['emacs']:
             return self.getBasicFactory(branch)
 
         if branch == "maint":
