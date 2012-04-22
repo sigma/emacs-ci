@@ -26,6 +26,10 @@ def getSlaves():
             for key, val in slave_binaries.items():
                 properties["slave/binaries/%s" % key] = val
 
+            slave_projects = d.get('projects', {})
+            for key, val in slave_projects.items():
+                properties["slave/projects/%s" % key] = val
+
             slaves.append(BuildSlave(s, d['password'],
                                      properties=properties))
 

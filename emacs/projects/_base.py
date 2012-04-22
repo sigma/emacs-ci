@@ -67,7 +67,22 @@ class EmacsProject(object):
             combo_tag = {}
             slaves = []
             for slave in self._slaves:
+                whitelist = None
+                if slave.properties.has_key("slave/projects/whitelist"):
+                    whitelist = slave.properties["slave/projects/whitelist"]
+                blacklist = None
+                if slave.properties.has_key("slave/projects/blacklist"):
+                    blacklist = slave.properties["slave/projects/blacklist"]
+
+                if whitelist is not None and type(whitelist) == list:
+                    if not self._project_name in whitelist:
+                        continue
+                if blacklist is not None and type(blacklist) == list:
+                    if self._project_name in blacklist:
+                        continue
+
                 fits = True
+
                 for key, expected in zip(keys, combo):
                     if not slave.properties.has_key("slave/features/" + key):
                         fits = False
