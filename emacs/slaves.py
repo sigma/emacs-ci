@@ -8,10 +8,14 @@ _slaves_defs_dir = os.path.join(_pwd, '..', '..', 'slave-definitions')
 
 def getSlaves():
     slaves = []
+    cwd = os.getcwd()
 
-    for s in os.listdir(_slaves_defs_dir):
-        fpath = os.path.join(_slaves_defs_dir, s, 'slave.yaml')
-        if os.path.exists(fpath):
+    os.chdir(_slaves_defs_dir)
+    for root, dirs, files in os.walk('.'):
+        if '.git' in dirs:
+            dirs.remove('.git')  # don't visit git directories
+        if 'slave.yaml' in files:
+            fpath = os.path.join(root, 'slave.yaml')
             f = file(fpath, 'r')
             d = yaml.load(f)
             if not d.has_key('password'):
@@ -30,7 +34,8 @@ def getSlaves():
             for key, val in slave_projects.items():
                 properties["slave/projects/%s" % key] = val
 
-            slaves.append(BuildSlave(s, d['password'],
+            slaves.append(BuildSlave(root[2:], d['password'],
                                      properties=properties))
 
+    os.chdir(cwd)
     return slaves
