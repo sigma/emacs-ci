@@ -34,7 +34,7 @@ def getSlaves():
             for key, val in slave_projects.items():
                 properties["slave/projects/%s" % key] = val
 
-            slaves.append(BuildSlave(root[2:], d['password'],
+            slaves.append(BuildSlave(root[2:].replace("/",":"), d['password'],
                                      properties=properties))
 
     os.chdir(cwd)
